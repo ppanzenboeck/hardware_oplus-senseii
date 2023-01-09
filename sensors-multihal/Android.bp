@@ -1,0 +1,119 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+soong_config_module_type {
+    name: "oplus_sensors_hal_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "OPLUS_SENSORS",
+    value_variables: [
+        "ALS_POS_L",
+        "ALS_POS_T",
+        "ALS_POS_R",
+        "ALS_POS_B",
+        "ALS_SCREEN_WIDTH",
+        "ALS_SCREEN_HEIGHT",
+    ],
+    properties: ["cppflags"],
+}
+
+oplus_sensors_hal_cc_defaults {
+    name: "oplus_sensors_hal_defaults",
+    soong_config_variables: {
+        ALS_POS_L: {
+            cppflags: ["-DALS_POS_L=%s"],
+        },
+        ALS_POS_T: {
+            cppflags: ["-DALS_POS_T=%s"],
+        },
+        ALS_POS_R: {
+            cppflags: ["-DALS_POS_R=%s"],
+        },
+        ALS_POS_B: {
+            cppflags: ["-DALS_POS_B=%s"],
+        },
+        ALS_SCREEN_WIDTH: {
+            cppflags: ["-DALS_SCREEN_WIDTH=%s"],
+        },
+        ALS_SCREEN_HEIGHT: {
+            cppflags: ["-DALS_SCREEN_HEIGHT=%s"],
+        },
+    },
+}
+
+cc_binary {
+    name: "android.hardware.sensors@2.1-service.multihal.oplus",
+    stem: "android.hardware.sensors@2.1-service.multihal",
+    defaults: [
+        "hidl_defaults",
+    ],
+    vendor: true,
+    relative_install_path: "hw",
+    srcs: [
+        "AlsCorrection.cpp",
+        "HalProxy.cpp",
+        "HalProxyCallback.cpp",
+        "service.cpp",
+    ],
+    init_rc: ["android.hardware.sensors@2.1-service-multihal.rc"],
+    vintf_fragments: ["android.hardware.sensors@2.1-multihal.xml"],
+    header_libs: [
+        "android.hardware.sensors@2.X-multihal.header",
+        "android.hardware.sensors@2.X-shared-utils",
+    ],
+    shared_libs: [
+        "android.hardware.sensors@2.0",
+        "android.hardware.sensors@2.0-ScopedWakelock",
+        "android.hardware.sensors@2.1",
+        "libbase",
+        "libcutils",
+        "libfmq",
+        "libhidlbase",
+        "liblog",
+        "libpower",
+        "libutils",
+    ],
+    static_libs: [
+        "android.hardware.sensors@1.0-convert",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+}
+
+cc_binary {
+    name: "als_correction_service.oplus",
+    stem: "als_correction_service",
+    init_rc: ["als_correction_service.rc"],
+    defaults: [
+        "oplus_sensors_hal_defaults",
+    ],
+    srcs: [
+        "als_correction_service.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libgui",
+        "libui",
+        "libutils",
+        "liblog",
+    ],
+    cflags: [
+        "-DNO_INPUT",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+}
